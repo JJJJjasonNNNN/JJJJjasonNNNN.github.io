@@ -11,7 +11,7 @@
 
         body {
             font-family: 'Rajdhani', sans-serif;
-            background-color: #090d16;
+            background-color: #060913;
             color: #f8fafc;
             user-select: none;
             overflow-x: hidden;
@@ -25,24 +25,25 @@
             box-shadow: 0 0 15px rgba(6, 182, 212, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.2);
         }
 
-        .glow-portal-a { box-shadow: 0 0 20px rgba(59, 130, 246, 0.6); }
-        .glow-portal-b { box-shadow: 0 0 20px rgba(236, 72, 153, 0.6); }
-        .glow-portal-c { box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
-        .glow-portal-d { box-shadow: 0 0 20px rgba(34, 197, 94, 0.6); }
+        .glow-portal-a { box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); }
+        .glow-portal-b { box-shadow: 0 0 15px rgba(236, 72, 153, 0.6); }
+        .glow-portal-c { box-shadow: 0 0 15px rgba(168, 85, 247, 0.6); }
+        .glow-portal-d { box-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
+        .glow-portal-e { box-shadow: 0 0 15px rgba(245, 158, 11, 0.6); }
 
         .floor-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid rgba(255, 255, 255, 0.08);
         }
 
         .floor-card.active-head {
             border-color: #38bdf8;
             box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
-            transform: scale(1.02);
+            transform: translateY(-2px);
         }
 
         .glass-panel {
-            background: rgba(15, 23, 42, 0.75);
+            background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -58,9 +59,6 @@
         ::-webkit-scrollbar-thumb {
             background: #334155;
             border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
         }
     </style>
 </head>
@@ -79,12 +77,12 @@
                     <h1 class="font-orbitron font-extrabold text-xl md:text-2xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-fuchsia-400">
                         PORTAL SNAKE
                     </h1>
-                    <p class="text-xs text-slate-400 font-semibold tracking-widest uppercase">Multi-Dimensional Slither</p>
+                    <p class="text-xs text-slate-400 font-semibold tracking-widest uppercase">Multi-Floor Jump Edition</p>
                 </div>
             </div>
 
             <!-- Game Stats Dashboard -->
-            <div class="flex items-center space-x-4 md:space-x-8 bg-slate-900/80 px-4 py-1.5 rounded-xl border border-slate-800">
+            <div class="flex items-center space-x-3 md:space-x-6 bg-slate-900/80 px-4 py-1.5 rounded-xl border border-slate-800">
                 <div class="text-center">
                     <span class="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Score</span>
                     <span id="score-display" class="font-orbitron text-xl font-extrabold text-cyan-400">0</span>
@@ -121,145 +119,171 @@
     </header>
 
     <!-- Main Game Layout -->
-    <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 flex flex-col gap-6">
+    <main class="max-w-7xl mx-auto w-full px-4 py-4 flex-1 flex flex-col gap-4">
 
         <!-- Info Bar & Legend -->
         <div class="glass-panel p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs md:text-sm">
-            <div class="flex flex-wrap items-center gap-4">
-                <span class="font-bold uppercase tracking-wider text-slate-400">Portal Pair Nodes:</span>
-                <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-blue-500/30">
-                    <span class="w-3 h-3 rounded-full bg-blue-500 glow-portal-a"></span>
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="font-bold uppercase tracking-wider text-slate-400">Portal Connections:</span>
+                <div class="flex items-center gap-1 bg-slate-900/80 px-2 py-0.5 rounded border border-blue-500/30">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500 glow-portal-a"></span>
                     <span class="font-bold text-blue-300">A</span>
-                    <span class="text-slate-500">→</span>
-                    <span class="text-slate-300">Floor 1 ↔ 2</span>
+                    <span class="text-slate-400">F1↔F2</span>
                 </div>
-                <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-pink-500/30">
-                    <span class="w-3 h-3 rounded-full bg-pink-500 glow-portal-b"></span>
+                <div class="flex items-center gap-1 bg-slate-900/80 px-2 py-0.5 rounded border border-pink-500/30">
+                    <span class="w-2.5 h-2.5 rounded-full bg-pink-500 glow-portal-b"></span>
                     <span class="font-bold text-pink-300">B</span>
-                    <span class="text-slate-500">→</span>
-                    <span class="text-slate-300">Floor 2 ↔ 3</span>
+                    <span class="text-slate-400">F2↔F3</span>
                 </div>
-                <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-purple-500/30">
-                    <span class="w-3 h-3 rounded-full bg-purple-500 glow-portal-c"></span>
+                <div class="flex items-center gap-1 bg-slate-900/80 px-2 py-0.5 rounded border border-purple-500/30">
+                    <span class="w-2.5 h-2.5 rounded-full bg-purple-500 glow-portal-c"></span>
                     <span class="font-bold text-purple-300">C</span>
-                    <span class="text-slate-500">→</span>
-                    <span class="text-slate-300">Floor 3 ↔ 4</span>
+                    <span class="text-slate-400">F3↔F4</span>
                 </div>
-                <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">
-                    <span class="w-3 h-3 rounded-full bg-emerald-500 glow-portal-d"></span>
+                <div class="flex items-center gap-1 bg-slate-900/80 px-2 py-0.5 rounded border border-emerald-500/30">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 glow-portal-d"></span>
                     <span class="font-bold text-emerald-300">D</span>
-                    <span class="text-slate-500">→</span>
-                    <span class="text-slate-300">Floor 4 ↔ 1</span>
+                    <span class="text-slate-400">F4↔F5</span>
+                </div>
+                <div class="flex items-center gap-1 bg-slate-900/80 px-2 py-0.5 rounded border border-amber-500/30">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 glow-portal-e"></span>
+                    <span class="font-bold text-amber-300">E</span>
+                    <span class="text-slate-400">F5↔F1</span>
                 </div>
             </div>
 
             <div class="flex items-center gap-3 font-semibold text-slate-300">
                 <span class="flex items-center gap-1"><i class="fa-solid fa-gamepad text-cyan-400"></i> WASD / Arrows</span>
                 <span class="text-slate-600">|</span>
-                <span class="flex items-center gap-1"><i class="fa-solid fa-bolt text-amber-400"></i> Speed Powerups</span>
+                <span class="flex items-center gap-1 text-amber-400 font-bold"><i class="fa-solid fa-angles-up"></i> SPACE = Jump on F5</span>
             </div>
         </div>
 
-        <!-- Multi-Floor Grid Displays Container -->
-        <div id="floors-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 flex-1">
+        <!-- Multi-Floor Grid Displays Container (5 Floors) -->
+        <div id="floors-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 flex-1">
             
             <!-- Floor 1 Card -->
-            <div id="floor-card-1" class="floor-card glass-panel rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden active-head">
+            <div id="floor-card-1" class="floor-card glass-panel rounded-2xl p-3 flex flex-col justify-between relative overflow-hidden active-head">
                 <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
-                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-sm">FLOOR 1: MEADOW</h2>
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-xs">F1: MEADOW</h2>
                     </div>
-                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Standard Speed</span>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Standard</span>
                 </div>
-                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800/80 flex items-center justify-center">
+                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
                     <canvas id="canvas-floor-1" class="w-full h-full block"></canvas>
                 </div>
-                <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
-                    <span>Active Snake Head</span>
-                    <span id="segments-floor-1" class="font-orbitron font-bold text-cyan-400">0 Segments</span>
+                <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+                    <span>Normal Apples</span>
+                    <span id="segments-floor-1" class="font-orbitron font-bold text-cyan-400">0 Segs</span>
                 </div>
             </div>
 
             <!-- Floor 2 Card -->
-            <div id="floor-card-2" class="floor-card glass-panel rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+            <div id="floor-card-2" class="floor-card glass-panel rounded-2xl p-3 flex flex-col justify-between relative overflow-hidden">
                 <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-3 h-3 rounded-full bg-cyan-400"></span>
-                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-sm">FLOOR 2: CYBER GRID</h2>
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-xs">F2: CYBER GRID</h2>
                     </div>
-                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">+25% Velocity</span>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Lasers!</span>
                 </div>
-                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800/80 flex items-center justify-center">
+                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
                     <canvas id="canvas-floor-2" class="w-full h-full block"></canvas>
                 </div>
-                <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
-                    <span>Lasers Active</span>
-                    <span id="segments-floor-2" class="font-orbitron font-bold text-cyan-400">0 Segments</span>
+                <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+                    <span>+50% Speed | 25pt</span>
+                    <span id="segments-floor-2" class="font-orbitron font-bold text-cyan-400">0 Segs</span>
                 </div>
             </div>
 
             <!-- Floor 3 Card -->
-            <div id="floor-card-3" class="floor-card glass-panel rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+            <div id="floor-card-3" class="floor-card glass-panel rounded-2xl p-3 flex flex-col justify-between relative overflow-hidden">
                 <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-3 h-3 rounded-full bg-orange-500"></span>
-                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-sm">FLOOR 3: MAGMA CORE</h2>
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-xs">F3: MAGMA CORE</h2>
                     </div>
-                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">2x Score Multiplier</span>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30">Hot Lava</span>
                 </div>
-                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800/80 flex items-center justify-center">
+                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
                     <canvas id="canvas-floor-3" class="w-full h-full block"></canvas>
                 </div>
-                <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
-                    <span>Volcanic Heat</span>
-                    <span id="segments-floor-3" class="font-orbitron font-bold text-cyan-400">0 Segments</span>
+                <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+                    <span>Lava Tiles | 3x Score</span>
+                    <span id="segments-floor-3" class="font-orbitron font-bold text-cyan-400">0 Segs</span>
                 </div>
             </div>
 
             <!-- Floor 4 Card -->
-            <div id="floor-card-4" class="floor-card glass-panel rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+            <div id="floor-card-4" class="floor-card glass-panel rounded-2xl p-3 flex flex-col justify-between relative overflow-hidden">
                 <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-3 h-3 rounded-full bg-purple-500"></span>
-                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-sm">FLOOR 4: COSMIC VOID</h2>
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-xs">F4: QUANTUM VOID</h2>
                     </div>
-                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Wrap-Around Space</span>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">Wrap & Shift</span>
                 </div>
-                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800/80 flex items-center justify-center">
+                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
                     <canvas id="canvas-floor-4" class="w-full h-full block"></canvas>
                 </div>
-                <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
-                    <span>Low Gravity</span>
-                    <span id="segments-floor-4" class="font-orbitron font-bold text-cyan-400">0 Segments</span>
+                <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+                    <span>Dynamic | 50pt Orbs</span>
+                    <span id="segments-floor-4" class="font-orbitron font-bold text-cyan-400">0 Segs</span>
+                </div>
+            </div>
+
+            <!-- Floor 5 Card: SKY HIGH (Jumping Mechanic) -->
+            <div id="floor-card-5" class="floor-card glass-panel rounded-2xl p-3 flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                        <h2 class="font-orbitron font-extrabold text-amber-300 tracking-wide text-xs">F5: SKY HIGH</h2>
+                    </div>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">JUMP!</span>
+                </div>
+                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
+                    <canvas id="canvas-floor-5" class="w-full h-full block"></canvas>
+                </div>
+                <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+                    <span>Jump to catch airborne fruit</span>
+                    <span id="segments-floor-5" class="font-orbitron font-bold text-cyan-400">0 Segs</span>
                 </div>
             </div>
 
         </div>
 
-        <!-- Touch Controls for Mobile Devices -->
-        <div class="lg:hidden flex flex-col items-center justify-center mt-2 mb-4">
-            <div class="text-xs text-slate-400 font-bold mb-2 uppercase tracking-wider">Touch D-Pad Navigation</div>
-            <div class="grid grid-cols-3 gap-2 w-48 h-48">
-                <div></div>
-                <button id="dpad-up" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
-                    <i class="fa-solid fa-chevron-up"></i>
-                </button>
-                <div></div>
-                <button id="dpad-left" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
-                <div class="bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-center">
-                    <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></div>
+        <!-- Touch & Mobile Controls Section -->
+        <div class="lg:hidden flex flex-col items-center justify-center my-2 gap-3">
+            <div class="flex items-center gap-4">
+                <div class="grid grid-cols-3 gap-2 w-44 h-44">
+                    <div></div>
+                    <button id="dpad-up" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
+                        <i class="fa-solid fa-chevron-up"></i>
+                    </button>
+                    <div></div>
+                    <button id="dpad-left" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <div class="bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-center">
+                        <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></div>
+                    </div>
+                    <button id="dpad-right" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                    <div></div>
+                    <button id="dpad-down" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div></div>
                 </div>
-                <button id="dpad-right" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
-                    <i class="fa-solid fa-chevron-right"></i>
+
+                <!-- Touch Jump Button -->
+                <button id="btn-touch-jump" class="w-20 h-44 rounded-2xl bg-gradient-to-b from-amber-500 to-orange-600 active:from-amber-400 active:to-orange-500 text-slate-950 font-orbitron font-black text-sm uppercase tracking-wider flex flex-col items-center justify-center gap-2 shadow-lg shadow-amber-500/20 border border-amber-400">
+                    <i class="fa-solid fa-angles-up text-2xl"></i>
+                    <span>JUMP</span>
                 </button>
-                <div></div>
-                <button id="dpad-down" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
-                    <i class="fa-solid fa-chevron-down"></i>
-                </button>
-                <div></div>
             </div>
         </div>
 
@@ -278,10 +302,10 @@
                 </div>
 
                 <h2 id="overlay-title" class="font-orbitron font-black text-2xl md:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-fuchsia-400 mb-2">
-                    DIMENSIONAL SNAKE
+                    PORTAL SNAKE 5D
                 </h2>
                 <p id="overlay-subtitle" class="text-sm text-slate-300 mb-6 font-medium">
-                    Navigate through connected dimensional portals! Slither across multiple floors simultaneously to collect energy apples and reach ultimate high scores.
+                    Travel across 5 distinct dimensions! Experience Cyber Lasers, Magma Tiles, Quantum Wrap, and the new <span class="text-amber-400 font-bold">Sky High Jump Floor</span>!
                 </p>
 
                 <div id="score-summary" class="hidden mb-6 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 grid grid-cols-2 gap-4">
@@ -302,7 +326,7 @@
                     
                     <div class="text-xs text-slate-400 pt-2 flex items-center justify-center gap-4">
                         <span><i class="fa-solid fa-keyboard text-cyan-400"></i> Arrows / WASD</span>
-                        <span><i class="fa-solid fa-mobile-screen text-fuchsia-400"></i> Swipe / D-Pad</span>
+                        <span><i class="fa-solid fa-angles-up text-amber-400"></i> Space = Jump</span>
                     </div>
                 </div>
             </div>
@@ -314,7 +338,7 @@
         <div class="glass-panel px-8 py-6 rounded-2xl border border-cyan-500/40 text-center">
             <i class="fa-solid fa-pause text-4xl text-cyan-400 mb-2 animate-bounce"></i>
             <h3 class="font-orbitron font-bold text-xl text-white">GAME PAUSED</h3>
-            <p class="text-xs text-slate-400 mt-1">Press SPACE or click Resume to continue</p>
+            <p class="text-xs text-slate-400 mt-1">Press P / Pause button to resume</p>
         </div>
     </div>
 
@@ -354,8 +378,26 @@
 
             playEat() {
                 this.init();
-                this.playTone(400, 'sine', 0.08, 0.2);
-                setTimeout(() => this.playTone(800, 'triangle', 0.1, 0.2), 60);
+                this.playTone(523.25, 'sine', 0.08, 0.2); // C5
+                setTimeout(() => this.playTone(659.25, 'triangle', 0.1, 0.2), 50); // E5
+            }
+
+            playJump() {
+                this.init();
+                if (!this.enabled || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.15);
+                } catch(e) {}
             }
 
             playPortalWarp() {
@@ -366,21 +408,21 @@
                     const gain = this.ctx.createGain();
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(200, this.ctx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.25);
+                    osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.22);
                     gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.22);
                     osc.connect(gain);
                     gain.connect(this.ctx.destination);
                     osc.start();
-                    osc.stop(this.ctx.currentTime + 0.25);
+                    osc.stop(this.ctx.currentTime + 0.22);
                 } catch(e) {}
             }
 
             playGameOver() {
                 this.init();
                 this.playTone(300, 'sawtooth', 0.2, 0.2);
-                setTimeout(() => this.playTone(200, 'sawtooth', 0.2, 0.2), 150);
-                setTimeout(() => this.playTone(100, 'square', 0.4, 0.3), 300);
+                setTimeout(() => this.playTone(220, 'sawtooth', 0.2, 0.2), 150);
+                setTimeout(() => this.playTone(130, 'square', 0.4, 0.3), 300);
             }
 
             playClick() {
@@ -394,68 +436,68 @@
         // --- GAME ENGINE & CONSTANTS ---
         const GRID_SIZE = 16; // 16x16 grid per floor
         
-        // Definition of the 4 Dimensional Floors
+        // Definition of 5 Dimensional Floors with Unique Properties
         const FLOORS = [
             { id: 0, name: 'Meadow', color: '#10b981', bg: '#022c22', gridColor: 'rgba(16, 185, 129, 0.1)', speedFactor: 1.0, scoreMult: 1 },
-            { id: 1, name: 'Cyber Grid', color: '#06b6d4', bg: '#083344', gridColor: 'rgba(6, 182, 212, 0.15)', speedFactor: 0.85, scoreMult: 1.5 },
-            { id: 2, name: 'Magma Core', color: '#f97316', bg: '#431407', gridColor: 'rgba(249, 115, 22, 0.15)', speedFactor: 0.95, scoreMult: 2.0 },
-            { id: 3, name: 'Cosmic Void', color: '#a855f7', bg: '#3b0764', gridColor: 'rgba(168, 85, 247, 0.15)', speedFactor: 1.0, scoreMult: 2.5, wrap: true }
+            { id: 1, name: 'Cyber Grid', color: '#06b6d4', bg: '#083344', gridColor: 'rgba(6, 182, 212, 0.15)', speedFactor: 0.65, scoreMult: 1.8 }, // Ultra Fast!
+            { id: 2, name: 'Magma Core', color: '#f97316', bg: '#3f1205', gridColor: 'rgba(249, 115, 22, 0.15)', speedFactor: 0.9, scoreMult: 3.0 }, // Hot Multiplier
+            { id: 3, name: 'Quantum Void', color: '#a855f7', bg: '#2e0a4f', gridColor: 'rgba(168, 85, 247, 0.15)', speedFactor: 0.85, scoreMult: 2.2, wrap: true },
+            { id: 4, name: 'Sky High', color: '#f59e0b', bg: '#1c1917', gridColor: 'rgba(245, 158, 11, 0.15)', speedFactor: 0.95, scoreMult: 2.5, allowsJump: true }
         ];
 
-        // Portal Links Configuration
-        // Connected Pairs:
-        // Portal A: Floor 0 <-> Floor 1
-        // Portal B: Floor 1 <-> Floor 2
-        // Portal C: Floor 2 <-> Floor 3
-        // Portal D: Floor 3 <-> Floor 0
-        const PORTAL_PAIRS = [
+        // Connected Portal Links Across 5 Floors
+        let PORTAL_PAIRS = [
             {
-                code: 'A',
-                color: '#3b82f6', // Blue
-                glow: 'rgba(59, 130, 246, 0.8)',
-                node1: { floor: 0, x: 12, y: 4, exitDir: { x: -1, y: 0 } },
-                node2: { floor: 1, x: 3, y: 11, exitDir: { x: 1, y: 0 } }
+                code: 'A', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.8)',
+                node1: { floor: 0, x: 13, y: 3, exitDir: { x: -1, y: 0 } },
+                node2: { floor: 1, x: 2, y: 12, exitDir: { x: 1, y: 0 } }
             },
             {
-                code: 'B',
-                color: '#ec4899', // Pink
-                glow: 'rgba(236, 72, 153, 0.8)',
-                node1: { floor: 1, x: 12, y: 12, exitDir: { x: 0, y: -1 } },
-                node2: { floor: 2, x: 3, y: 3, exitDir: { x: 0, y: 1 } }
+                code: 'B', color: '#ec4899', glow: 'rgba(236, 72, 153, 0.8)',
+                node1: { floor: 1, x: 13, y: 13, exitDir: { x: 0, y: -1 } },
+                node2: { floor: 2, x: 2, y: 2, exitDir: { x: 0, y: 1 } }
             },
             {
-                code: 'C',
-                color: '#a855f7', // Purple
-                glow: 'rgba(168, 85, 247, 0.8)',
-                node1: { floor: 2, x: 12, y: 8, exitDir: { x: -1, y: 0 } },
-                node2: { floor: 3, x: 3, y: 8, exitDir: { x: 1, y: 0 } }
+                code: 'C', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.8)',
+                node1: { floor: 2, x: 13, y: 8, exitDir: { x: -1, y: 0 } },
+                node2: { floor: 3, x: 2, y: 8, exitDir: { x: 1, y: 0 } }
             },
             {
-                code: 'D',
-                color: '#22c55e', // Green
-                glow: 'rgba(34, 197, 94, 0.8)',
-                node1: { floor: 3, x: 8, y: 12, exitDir: { x: 0, y: -1 } },
-                node2: { floor: 0, x: 8, y: 3, exitDir: { x: 0, y: 1 } }
+                code: 'D', color: '#22c55e', glow: 'rgba(34, 197, 94, 0.8)',
+                node1: { floor: 3, x: 8, y: 13, exitDir: { x: 0, y: -1 } },
+                node2: { floor: 4, x: 8, y: 2, exitDir: { x: 0, y: 1 } }
+            },
+            {
+                code: 'E', color: '#f59e0b', glow: 'rgba(245, 158, 11, 0.8)',
+                node1: { floor: 4, x: 13, y: 13, exitDir: { x: -1, y: 0 } },
+                node2: { floor: 0, x: 2, y: 2, exitDir: { x: 1, y: 0 } }
             }
         ];
 
         // State Variables
         let canvases = [];
         let ctxs = [];
-        let snake = []; // Array of segment objects: [{ x, y, floor }, ...]
+        let snake = []; // Segment objects: [{ x, y, floor, z: 0 }] where z > 0 is airborne height
         let direction = { x: 1, y: 0 };
-        let nextDirection = { x: 1, y: 0 };
-        let foods = []; // Array of food items: [{ floor, x, y, type, points }]
+        let inputQueue = []; // Highly responsive movement Queue
+        let foods = []; // [{ floor, x, y, type, points, floating: false }]
+        let obstacles = []; // [{ floor, x, y, type: 'laser'|'lava'|'spike' }]
         let particles = [];
+        
         let score = 0;
         let highScore = localStorage.getItem('portal_snake_highscore') || 0;
         let isRunning = false;
         let isPaused = false;
         let gameLoopTimeout = null;
-        let baseSpeed = 140; // ms per tick
+        let baseSpeed = 120; // Fast responsive base speed (ms)
         let animationFrameId = null;
 
-        // Visual Effects State
+        // Jump Mechanics State
+        let jumpTimer = 0; // Steps remaining in jump
+
+        // Environmental Dynamic State
+        let laserCycle = 0; // Toggle state for Cyber lasers on F2
+        let quantumShiftTimer = 0; // Timer for random portal shifts on F4
         let portalPulseAngle = 0;
 
         // --- INITIALIZATION ---
@@ -470,9 +512,8 @@
         function initCanvases() {
             canvases = [];
             ctxs = [];
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 5; i++) {
                 const canvas = document.getElementById(`canvas-floor-${i + 1}`);
-                // Ensure crisp canvas rendering
                 const size = 320;
                 canvas.width = size;
                 canvas.height = size;
@@ -489,18 +530,21 @@
 
             // Initialize Snake on Floor 0 (Meadow)
             snake = [
-                { x: 5, y: 8, floor: 0 },
-                { x: 4, y: 8, floor: 0 },
-                { x: 3, y: 8, floor: 0 }
+                { x: 5, y: 8, floor: 0, z: 0 },
+                { x: 4, y: 8, floor: 0, z: 0 },
+                { x: 3, y: 8, floor: 0, z: 0 }
             ];
 
             direction = { x: 1, y: 0 };
-            nextDirection = { x: 1, y: 0 };
+            inputQueue = [];
             score = 0;
             particles = [];
-            updateScoreUI();
+            jumpTimer = 0;
+            laserCycle = 0;
+            quantumShiftTimer = 0;
 
-            // Spawn Food across floors
+            updateScoreUI();
+            generateObstacles();
             spawnAllFoods();
 
             isRunning = true;
@@ -513,10 +557,33 @@
             tick();
         }
 
+        function generateObstacles() {
+            obstacles = [];
+
+            // Floor 2 (Cyber Grid): Vertical/Horizontal Laser Nodes
+            for (let y = 3; y < 13; y += 3) {
+                obstacles.push({ floor: 1, x: 7, y: y, type: 'laser' });
+            }
+
+            // Floor 3 (Magma Core): Crumbly Magma Tiles
+            const magmaCoords = [
+                {x: 5, y: 5}, {x: 6, y: 5}, {x: 5, y: 6},
+                {x: 10, y: 10}, {x: 11, y: 10}, {x: 10, y: 11},
+                {x: 7, y: 12}, {x: 8, y: 12}
+            ];
+            magmaCoords.forEach(c => obstacles.push({ floor: 2, x: c.x, y: c.y, type: 'lava' }));
+
+            // Floor 5 (Sky High): Ground Spikes that CAN BE JUMPED OVER
+            const spikeCoords = [
+                {x: 6, y: 6}, {x: 6, y: 7}, {x: 6, y: 8},
+                {x: 10, y: 6}, {x: 10, y: 7}, {x: 10, y: 8}
+            ];
+            spikeCoords.forEach(c => obstacles.push({ floor: 4, x: c.x, y: c.y, type: 'spike' }));
+        }
+
         function spawnAllFoods() {
             foods = [];
-            // Spawn 1 food per floor
-            for (let f = 0; f < 4; f++) {
+            for (let f = 0; f < 5; f++) {
                 spawnFoodForFloor(f);
             }
         }
@@ -529,35 +596,49 @@
                 fx = Math.floor(Math.random() * GRID_SIZE);
                 fy = Math.floor(Math.random() * GRID_SIZE);
 
-                // Check collision with snake
+                // Check collision with snake, portals, and obstacles
                 const onSnake = snake.some(s => s.floor === floorIndex && s.x === fx && s.y === fy);
-                // Check collision with portals on this floor
                 const onPortal = isPortalAt(floorIndex, fx, fy);
+                const onObstacle = obstacles.some(o => o.floor === floorIndex && o.x === fx && o.y === fy);
 
-                if (!onSnake && !onPortal) {
+                if (!onSnake && !onPortal && !onObstacle) {
                     valid = true;
                 }
             }
 
-            // Food type variants
-            const isSpecial = Math.random() < 0.25;
+            // Determine Food Attributes per floor
+            let type = 'normal';
+            let points = 10;
+            let floating = false;
+
+            if (floorIndex === 1) { // Cyber Grid
+                type = 'cyber'; points = 25;
+            } else if (floorIndex === 2) { // Magma Core
+                type = 'magma'; points = 35;
+            } else if (floorIndex === 3) { // Quantum Void
+                type = 'quantum'; points = 50;
+            } else if (floorIndex === 4) { // Sky High Floor
+                // On Floor 5, 60% of fruit is airborne floating
+                floating = Math.random() < 0.65;
+                type = floating ? 'flying' : 'normal';
+                points = floating ? 40 : 15;
+            }
+
             foods.push({
                 floor: floorIndex,
                 x: fx,
                 y: fy,
-                type: isSpecial ? 'special' : 'normal',
-                points: isSpecial ? 30 : 10
+                type: type,
+                points: points,
+                floating: floating
             });
         }
 
         function isPortalAt(floor, x, y) {
-            for (const pair of PORTAL_PAIRS) {
-                if ((pair.node1.floor === floor && pair.node1.x === x && pair.node1.y === y) ||
-                    (pair.node2.floor === floor && pair.node2.x === x && pair.node2.y === y)) {
-                    return true;
-                }
-            }
-            return false;
+            return PORTAL_PAIRS.some(p => 
+                (p.node1.floor === floor && p.node1.x === x && p.node1.y === y) ||
+                (p.node2.floor === floor && p.node2.x === x && p.node2.y === y)
+            );
         }
 
         function getPortalNodeAt(floor, x, y) {
@@ -576,19 +657,33 @@
         function tick() {
             if (!isRunning || isPaused) return;
 
-            direction = { ...nextDirection };
+            // Highly Responsive Input Queue Handling
+            if (inputQueue.length > 0) {
+                const nextDir = inputQueue.shift();
+                // Prevent 180-degree immediate turn
+                if (nextDir.x !== -direction.x || nextDir.y !== -direction.y) {
+                    direction = nextDir;
+                }
+            }
+
             const head = snake[0];
             let nextX = head.x + direction.x;
             let nextY = head.y + direction.y;
             let nextFloor = head.floor;
 
+            // Handle Airborne Jump State
+            let isHeadAirborne = false;
+            if (jumpTimer > 0) {
+                jumpTimer--;
+                isHeadAirborne = true;
+            }
+
             const currentFloorConfig = FLOORS[head.floor];
 
-            // 1. Check Floor Edge / Boundary Behavior
+            // 1. Check Floor Edge Boundaries
             let hitWall = false;
 
             if (currentFloorConfig.wrap) {
-                // Cosmic Void wraps around edges
                 if (nextX < 0) nextX = GRID_SIZE - 1;
                 if (nextX >= GRID_SIZE) nextX = 0;
                 if (nextY < 0) nextY = GRID_SIZE - 1;
@@ -604,110 +699,158 @@
                 return;
             }
 
-            // 2. Check Portal Interaction
+            // 2. Portal Warp Check (Portals can be entered unless airborne over them)
             const portalHit = getPortalNodeAt(nextFloor, nextX, nextY);
 
-            if (portalHit) {
+            if (portalHit && !isHeadAirborne) {
                 const { pair, targetNode } = portalHit;
                 
-                // Teleport Snake Head to Target Floor & Target Node
                 nextFloor = targetNode.floor;
                 nextX = targetNode.x;
                 nextY = targetNode.y;
 
-                // Automatically update direction to portal's exit vector to prevent immediate back-collision
+                // Snap direction to target node exit vector
                 direction = { ...targetNode.exitDir };
-                nextDirection = { ...targetNode.exitDir };
+                inputQueue = []; // Clear queue on teleport to avoid misdirection
 
                 sfx.playPortalWarp();
-
-                // Spawn Warp Particles
                 spawnWarpParticles(targetNode.floor, targetNode.x, targetNode.y, pair.color);
             }
 
-            // 3. Self Collision Check
-            // Snake collides with itself if next position matches any segment ON THE SAME FLOOR
+            // 3. Obstacle Collision Check
+            const obstacleHit = obstacles.find(o => o.floor === nextFloor && o.x === nextX && o.y === nextY);
+
+            if (obstacleHit) {
+                if (obstacleHit.type === 'laser' && laserCycle % 2 === 0) {
+                    gameOver("Zapped by Cyber Laser Beam!");
+                    return;
+                } else if (obstacleHit.type === 'lava' && !isHeadAirborne) {
+                    gameOver("Melted in Magma Core!");
+                    return;
+                } else if (obstacleHit.type === 'spike' && !isHeadAirborne) {
+                    gameOver("Impaled by Ground Spikes! Jump over them!");
+                    return;
+                }
+            }
+
+            // 4. Self Collision Check
             const selfCollision = snake.some((seg, idx) => {
-                // Ignore the very tail end segment as it will move forward this frame unless eating
                 if (idx === snake.length - 1) return false;
+                // If airborne, you can jump OVER lower body segments!
+                if (isHeadAirborne && seg.z === 0) return false;
                 return seg.floor === nextFloor && seg.x === nextX && seg.y === nextY;
             });
 
             if (selfCollision) {
-                gameOver("Snake collided with its own segment!");
+                gameOver("Snake collided with itself!");
                 return;
             }
 
             // Create New Head Segment
-            const newHead = { x: nextX, y: nextY, floor: nextFloor };
+            const newHead = { 
+                x: nextX, 
+                y: nextY, 
+                floor: nextFloor, 
+                z: isHeadAirborne ? 1 : 0 
+            };
             snake.unshift(newHead);
 
-            // 4. Food Collision Check
+            // 5. Food Interaction Check
             const foodIndex = foods.findIndex(f => f.floor === nextFloor && f.x === nextX && f.y === nextY);
 
             if (foodIndex !== -1) {
                 const eatenFood = foods[foodIndex];
-                const floorMult = FLOORS[nextFloor].scoreMult;
-                const earned = Math.round(eatenFood.points * floorMult);
+                let canEat = true;
 
-                score += earned;
-                updateScoreUI();
-                sfx.playEat();
+                // Floating fruit on Floor 5 requires the snake to be AIRBORNE to reach!
+                if (eatenFood.floating && !isHeadAirborne) {
+                    canEat = false; // Snake slithers under the flying fruit
+                }
 
-                // Particle Burst
-                spawnFoodParticles(nextFloor, nextX, nextY, eatenFood.type === 'special' ? '#f59e0b' : '#ef4444');
+                if (canEat) {
+                    const floorMult = FLOORS[nextFloor].scoreMult;
+                    const earned = Math.round(eatenFood.points * floorMult);
 
-                // Remove eaten food and spawn a replacement on that floor
-                foods.splice(foodIndex, 1);
-                spawnFoodFloorDelay(nextFloor);
+                    score += earned;
+                    updateScoreUI();
+                    sfx.playEat();
+
+                    spawnFoodParticles(nextFloor, nextX, nextY, eatenFood.floating ? '#f59e0b' : '#ef4444');
+
+                    foods.splice(foodIndex, 1);
+                    spawnFoodFloorDelay(nextFloor);
+                } else {
+                    snake.pop(); // Tail shrinks if fruit missed
+                }
             } else {
-                // Remove Tail Segment if no food eaten
-                snake.pop();
+                snake.pop(); // Regular movement step
             }
 
-            // Highlight Floor Card containing the active head
+            // Increment Dynamic Environmental Counters
+            laserCycle++;
+            quantumShiftTimer++;
+
+            // Floor 4 Dynamic Portal Shift (Every 20 ticks)
+            if (quantumShiftTimer % 20 === 0) {
+                shiftQuantumPortals();
+            }
+
             updateHeadFloorUI(nextFloor);
 
-            // Calculate dynamic delay based on head floor speed setting
+            // Calculate precise speed based on Head Floor speed profile
             const speedFactor = FLOORS[nextFloor].speedFactor;
-            const currentSpeed = Math.max(70, baseSpeed * speedFactor - Math.floor(score / 50) * 2);
+            const currentSpeed = Math.max(55, Math.round(baseSpeed * speedFactor - Math.floor(score / 80) * 2));
 
             gameLoopTimeout = setTimeout(tick, currentSpeed);
+        }
+
+        function triggerJump() {
+            if (!isRunning || isPaused) return;
+            const head = snake[0];
+
+            // Jump can only be activated if on Floor 5 (Sky High) or anywhere if powerup enabled
+            if (FLOORS[head.floor].allowsJump && jumpTimer === 0) {
+                jumpTimer = 3; // Airborne for 3 full grid tiles
+                sfx.playJump();
+            }
+        }
+
+        function shiftQuantumPortals() {
+            // Shift Node 1 of Portal C slightly on Floor 4 to keep players agile
+            const pC = PORTAL_PAIRS.find(p => p.code === 'C');
+            if (pC) {
+                pC.node2.x = 2 + Math.floor(Math.random() * 12);
+                pC.node2.y = 2 + Math.floor(Math.random() * 12);
+            }
         }
 
         function spawnFoodFloorDelay(floorIdx) {
             setTimeout(() => {
                 if (isRunning) spawnFoodForFloor(floorIdx);
-            }, 500);
+            }, 400);
         }
 
         // --- PARTICLE EFFECTS ENGINE ---
         function spawnWarpParticles(floor, gx, gy, color) {
-            const canvasSize = 320;
-            const cellSize = canvasSize / GRID_SIZE;
+            const size = 320;
+            const cellSize = size / GRID_SIZE;
             const px = (gx + 0.5) * cellSize;
             const py = (gy + 0.5) * cellSize;
 
-            for (let i = 0; i < 18; i++) {
+            for (let i = 0; i < 16; i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const speed = 1.5 + Math.random() * 3.5;
                 particles.push({
-                    floor: floor,
-                    x: px,
-                    y: py,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed,
-                    color: color,
-                    size: 2 + Math.random() * 4,
-                    life: 1.0,
-                    decay: 0.04 + Math.random() * 0.04
+                    floor: floor, x: px, y: py,
+                    vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                    color: color, size: 2 + Math.random() * 4, life: 1.0, decay: 0.05
                 });
             }
         }
 
         function spawnFoodParticles(floor, gx, gy, color) {
-            const canvasSize = 320;
-            const cellSize = canvasSize / GRID_SIZE;
+            const size = 320;
+            const cellSize = size / GRID_SIZE;
             const px = (gx + 0.5) * cellSize;
             const py = (gy + 0.5) * cellSize;
 
@@ -715,15 +858,9 @@
                 const angle = Math.random() * Math.PI * 2;
                 const speed = 1 + Math.random() * 2.5;
                 particles.push({
-                    floor: floor,
-                    x: px,
-                    y: py,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed,
-                    color: color,
-                    size: 2 + Math.random() * 3,
-                    life: 1.0,
-                    decay: 0.05
+                    floor: floor, x: px, y: py,
+                    vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                    color: color, size: 2 + Math.random() * 3, life: 1.0, decay: 0.06
                 });
             }
         }
@@ -755,17 +892,13 @@
 
         // --- RENDER ENGINE ---
         function renderLoop() {
-            portalPulseAngle += 0.05;
+            portalPulseAngle += 0.06;
 
-            // Render all 4 canvases
-            for (let f = 0; f < 4; f++) {
+            for (let f = 0; f < 5; f++) {
                 renderFloor(f);
             }
 
-            // Update particle physics overlay
             updateAndDrawParticles();
-
-            // Update Floor Segment Counters
             updateSegmentCounters();
 
             animationFrameId = requestAnimationFrame(renderLoop);
@@ -777,94 +910,147 @@
             const size = 320;
             const cellSize = size / GRID_SIZE;
 
-            // 1. Background Grid Fill
+            // 1. Background Fill
             ctx.fillStyle = config.bg;
             ctx.fillRect(0, 0, size, size);
 
-            // Draw Subtle Grid Pattern
+            // Grid Lines
             ctx.strokeStyle = config.gridColor;
             ctx.lineWidth = 1;
             for (let i = 0; i <= GRID_SIZE; i++) {
                 ctx.beginPath();
-                ctx.moveTo(i * cellSize, 0);
-                ctx.lineTo(i * cellSize, size);
-                ctx.stroke();
-
+                ctx.moveTo(i * cellSize, 0); ctx.lineTo(i * cellSize, size); ctx.stroke();
                 ctx.beginPath();
-                ctx.moveTo(0, i * cellSize);
-                ctx.lineTo(size, i * cellSize);
-                ctx.stroke();
+                ctx.moveTo(0, i * cellSize); ctx.lineTo(size, i * cellSize); ctx.stroke();
             }
 
-            // 2. Render Portals on this Floor
+            // 2. Render Obstacles
+            obstacles.filter(o => o.floor === floorIdx).forEach(obs => {
+                const cx = obs.x * cellSize;
+                const cy = obs.y * cellSize;
+
+                ctx.save();
+                if (obs.type === 'laser') {
+                    // Cyber Lasers
+                    const active = laserCycle % 2 === 0;
+                    ctx.fillStyle = active ? 'rgba(239, 68, 68, 0.85)' : 'rgba(239, 68, 68, 0.2)';
+                    ctx.fillRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
+                    if (active) {
+                        ctx.shadowBlur = 10; ctx.shadowColor = '#ef4444';
+                        ctx.strokeStyle = '#ffffff'; ctx.strokeRect(cx + 4, cy + 4, cellSize - 8, cellSize - 8);
+                    }
+                } else if (obs.type === 'lava') {
+                    // Crumbly Lava Tiles
+                    ctx.fillStyle = '#ea580c';
+                    ctx.fillRect(cx + 1, cy + 1, cellSize - 2, cellSize - 2);
+                    ctx.fillStyle = '#f97316';
+                    ctx.fillRect(cx + 4, cy + 4, cellSize - 8, cellSize - 8);
+                } else if (obs.type === 'spike') {
+                    // Ground Spikes
+                    ctx.fillStyle = '#64748b';
+                    ctx.beginPath();
+                    ctx.moveTo(cx + cellSize/2, cy + 2);
+                    ctx.lineTo(cx + cellSize - 2, cy + cellSize - 2);
+                    ctx.lineTo(cx + 2, cy + cellSize - 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            });
+
+            // 3. Render Portals
             PORTAL_PAIRS.forEach(pair => {
                 if (pair.node1.floor === floorIdx) drawPortalNode(ctx, pair.node1, pair, cellSize);
                 if (pair.node2.floor === floorIdx) drawPortalNode(ctx, pair.node2, pair, cellSize);
             });
 
-            // 3. Render Food on this Floor
+            // 4. Render Foods
             foods.filter(f => f.floor === floorIdx).forEach(food => {
                 const cx = (food.x + 0.5) * cellSize;
                 const cy = (food.y + 0.5) * cellSize;
                 const radius = (cellSize / 2) * 0.7;
 
                 ctx.save();
-                ctx.shadowBlur = 12;
-                ctx.shadowColor = food.type === 'special' ? '#f59e0b' : '#ef4444';
+                if (food.floating) {
+                    // Floating fruit with height offset & wing animation
+                    const floatY = cy - 8 + Math.sin(portalPulseAngle * 3) * 4;
+                    ctx.shadowBlur = 12; ctx.shadowColor = '#f59e0b';
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.beginPath();
+                    ctx.arc(cx, floatY, radius, 0, Math.PI * 2);
+                    ctx.fill();
 
-                // Pulsing Food Animation
-                const pulse = Math.sin(portalPulseAngle * 2) * 2;
+                    // Tiny Wings
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.ellipse(cx - 8, floatY - 2, 5, 2, -0.4, 0, Math.PI * 2);
+                    ctx.ellipse(cx + 8, floatY - 2, 5, 2, 0.4, 0, Math.PI * 2);
+                    ctx.fill();
 
-                ctx.fillStyle = food.type === 'special' ? '#f59e0b' : '#ef4444';
-                ctx.beginPath();
-                ctx.arc(cx, cy, Math.max(3, radius + pulse), 0, Math.PI * 2);
-                ctx.fill();
+                    // Ground Shadow
+                    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy + 8, 6, 2, 0, 0, Math.PI * 2);
+                    ctx.fill();
 
-                // Core highlight
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.arc(cx - radius * 0.3, cy - radius * 0.3, radius * 0.3, 0, Math.PI * 2);
-                ctx.fill();
-
+                } else {
+                    // Regular Floor Fruit
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = food.type === 'cyber' ? '#06b6d4' : food.type === 'magma' ? '#f97316' : '#ef4444';
+                    ctx.fillStyle = food.type === 'cyber' ? '#06b6d4' : food.type === 'magma' ? '#f97316' : '#ef4444';
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 ctx.restore();
             });
 
-            // 4. Render Snake Segments on this Floor
-            // Collect all snake segments that belong to this floor
+            // 5. Render Snake Segments
             for (let i = snake.length - 1; i >= 0; i--) {
                 const seg = snake[i];
                 if (seg.floor !== floorIdx) continue;
 
                 const isHead = (i === 0);
                 const cx = seg.x * cellSize;
-                const cy = seg.y * cellSize;
-                const padding = 2;
+                let cy = seg.y * cellSize;
+                const isAirborne = seg.z > 0;
 
                 ctx.save();
 
-                if (isHead) {
-                    // Snake Head
-                    ctx.shadowBlur = 15;
-                    ctx.shadowColor = '#38bdf8';
-                    ctx.fillStyle = '#38bdf8';
+                // Air Offset elevation visual for airborne segments
+                if (isAirborne) {
+                    // Draw Ground Shadow
+                    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                    ctx.beginPath();
+                    ctx.ellipse(cx + cellSize/2, cy + cellSize - 2, cellSize/3, 3, 0, 0, Math.PI * 2);
+                    ctx.fill();
 
-                    // Rounded Head Box
+                    // Elevate drawing position upward
+                    cy -= 10;
+                }
+
+                const padding = 2;
+
+                if (isHead) {
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = isAirborne ? '#f59e0b' : '#38bdf8';
+                    ctx.fillStyle = isAirborne ? '#f59e0b' : '#38bdf8';
+
                     ctx.beginPath();
                     ctx.roundRect(cx + padding, cy + padding, cellSize - padding * 2, cellSize - padding * 2, 6);
                     ctx.fill();
 
-                    // Eyes facing moving direction
+                    // Eyes
                     ctx.fillStyle = '#0f172a';
                     const eyeSize = 3;
                     let eyeX1 = cx + 5, eyeY1 = cy + 5, eyeX2 = cx + 11, eyeY2 = cy + 5;
 
-                    if (direction.x === 1) { // Right
+                    if (direction.x === 1) {
                         eyeX1 = cx + cellSize - 6; eyeY1 = cy + 5;
                         eyeX2 = cx + cellSize - 6; eyeY2 = cy + cellSize - 7;
-                    } else if (direction.x === -1) { // Left
+                    } else if (direction.x === -1) {
                         eyeX1 = cx + 5; eyeY1 = cy + 5;
                         eyeX2 = cx + 5; eyeY2 = cy + cellSize - 7;
-                    } else if (direction.y === 1) { // Down
+                    } else if (direction.y === 1) {
                         eyeX1 = cx + 5; eyeY1 = cy + cellSize - 6;
                         eyeX2 = cx + cellSize - 7; eyeY2 = cy + cellSize - 6;
                     }
@@ -875,9 +1061,8 @@
                     ctx.fill();
 
                 } else {
-                    // Snake Body Segment
                     const ratio = 1 - (i / snake.length);
-                    ctx.fillStyle = `hsl(${180 + ratio * 60}, 90%, ${45 + ratio * 15}%)`;
+                    ctx.fillStyle = isAirborne ? `#fbbf24` : `hsl(${180 + ratio * 60}, 90%, ${45 + ratio * 15}%)`;
 
                     ctx.beginPath();
                     ctx.roundRect(cx + padding + 1, cy + padding + 1, cellSize - (padding + 1) * 2, cellSize - (padding + 1) * 2, 4);
@@ -891,31 +1076,24 @@
         function drawPortalNode(ctx, node, pair, cellSize) {
             const cx = (node.x + 0.5) * cellSize;
             const cy = (node.y + 0.5) * cellSize;
-            const radius = (cellSize / 2) * 0.85;
+            const radius = (cellSize / 2) * 0.8;
 
             ctx.save();
-
-            // Glowing Vortex Ring
-            const glowPulse = Math.sin(portalPulseAngle) * 4;
-            ctx.shadowBlur = 15 + glowPulse;
+            ctx.shadowBlur = 12;
             ctx.shadowColor = pair.color;
 
-            // Outer Portal Ring
             ctx.strokeStyle = pair.color;
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2.5;
             ctx.beginPath();
             ctx.arc(cx, cy, radius, 0, Math.PI * 2);
             ctx.stroke();
 
-            // Swirling Inner Core
             ctx.fillStyle = pair.glow;
             ctx.beginPath();
-            ctx.arc(cx, cy, radius * 0.55 + Math.sin(portalPulseAngle * 3) * 1.5, 0, Math.PI * 2);
+            ctx.arc(cx, cy, radius * 0.5, 0, Math.PI * 2);
             ctx.fill();
 
-            // Portal Label Badge (A, B, C, D)
-            ctx.shadowBlur = 0;
-            ctx.font = 'bold 11px Orbitron, sans-serif';
+            ctx.font = 'bold 10px Orbitron, sans-serif';
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -935,29 +1113,25 @@
         }
 
         function updateHeadFloorUI(floorIdx) {
-            // Update Top Header Floor Badge
             const headFloorEl = document.getElementById('head-floor-display');
-            headFloorEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-fuchsia-400 animate-ping"></span> Floor ${floorIdx + 1}: ${FLOORS[floorIdx].name}`;
+            const jumpBadge = jumpTimer > 0 ? ' <span class="text-amber-300 animate-pulse">(JUMPING)</span>' : '';
+            headFloorEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-fuchsia-400 animate-ping"></span> Floor ${floorIdx + 1}: ${FLOORS[floorIdx].name}${jumpBadge}`;
 
-            // Highlight active floor card
-            for (let f = 0; f < 4; f++) {
+            for (let f = 0; f < 5; f++) {
                 const card = document.getElementById(`floor-card-${f + 1}`);
-                if (f === floorIdx) {
-                    card.classList.add('active-head');
-                } else {
-                    card.classList.remove('active-head');
-                }
+                if (f === floorIdx) card.classList.add('active-head');
+                else card.classList.remove('active-head');
             }
         }
 
         function updateSegmentCounters() {
-            const counts = [0, 0, 0, 0];
+            const counts = [0, 0, 0, 0, 0];
             snake.forEach(seg => {
-                if (seg.floor >= 0 && seg.floor < 4) counts[seg.floor]++;
+                if (seg.floor >= 0 && seg.floor < 5) counts[seg.floor]++;
             });
 
-            for (let f = 0; f < 4; f++) {
-                document.getElementById(`segments-floor-${f + 1}`).innerText = `${counts[f]} Segments`;
+            for (let f = 0; f < 5; f++) {
+                document.getElementById(`segments-floor-${f + 1}`).innerText = `${counts[f]} Segs`;
             }
         }
 
@@ -965,7 +1139,6 @@
             isRunning = false;
             sfx.playGameOver();
 
-            // Show Game Over Modal
             const overlay = document.getElementById('game-overlay');
             document.getElementById('overlay-title').innerText = "DIMENSIONAL CRASH";
             document.getElementById('overlay-subtitle').innerText = reason;
@@ -984,19 +1157,34 @@
             isPaused = !isPaused;
             const pauseOverlay = document.getElementById('pause-overlay');
 
-            if (isPaused) {
-                pauseOverlay.classList.remove('hidden');
-            } else {
+            if (isPaused) pauseOverlay.classList.remove('hidden');
+            else {
                 pauseOverlay.classList.add('hidden');
                 tick();
             }
         }
 
+        function queueDirection(x, y) {
+            // Highly Responsive Queueing
+            const lastDir = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : direction;
+            if (x !== -lastDir.x || y !== -lastDir.y) {
+                if (inputQueue.length < 3) {
+                    inputQueue.push({ x, y });
+                }
+            }
+        }
+
         function setupEventListeners() {
-            // Keyboard Movement Controls
+            // Keyboard Movement Controls & Space Jump
             window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    triggerJump();
+                    return;
+                }
+
                 if (!isRunning || isPaused) {
-                    if (e.code === 'Space') togglePause();
+                    if (e.key === 'p' || e.key === 'P') togglePause();
                     return;
                 }
 
@@ -1004,49 +1192,41 @@
                     case 'ArrowUp':
                     case 'w':
                     case 'W':
-                        if (direction.y !== 1) nextDirection = { x: 0, y: -1 };
+                        queueDirection(0, -1);
                         e.preventDefault();
                         break;
                     case 'ArrowDown':
                     case 's':
                     case 'S':
-                        if (direction.y !== -1) nextDirection = { x: 0, y: 1 };
+                        queueDirection(0, 1);
                         e.preventDefault();
                         break;
                     case 'ArrowLeft':
                     case 'a':
                     case 'A':
-                        if (direction.x !== 1) nextDirection = { x: -1, y: 0 };
+                        queueDirection(-1, 0);
                         e.preventDefault();
                         break;
                     case 'ArrowRight':
                     case 'd':
                     case 'D':
-                        if (direction.x !== -1) nextDirection = { x: 1, y: 0 };
+                        queueDirection(1, 0);
                         e.preventDefault();
                         break;
-                    case ' ':
+                    case 'p':
+                    case 'P':
                         togglePause();
                         e.preventDefault();
                         break;
                 }
             });
 
-            // Touch Mobile D-Pad Events
-            const dpadUp = document.getElementById('dpad-up');
-            const dpadDown = document.getElementById('dpad-down');
-            const dpadLeft = document.getElementById('dpad-left');
-            const dpadRight = document.getElementById('dpad-right');
-
-            dpadUp.addEventListener('touchstart', (e) => { e.preventDefault(); if (direction.y !== 1) nextDirection = { x: 0, y: -1 }; });
-            dpadDown.addEventListener('touchstart', (e) => { e.preventDefault(); if (direction.y !== -1) nextDirection = { x: 0, y: 1 }; });
-            dpadLeft.addEventListener('touchstart', (e) => { e.preventDefault(); if (direction.x !== 1) nextDirection = { x: -1, y: 0 }; });
-            dpadRight.addEventListener('touchstart', (e) => { e.preventDefault(); if (direction.x !== -1) nextDirection = { x: 1, y: 0 }; });
-
-            dpadUp.addEventListener('click', () => { if (direction.y !== 1) nextDirection = { x: 0, y: -1 }; });
-            dpadDown.addEventListener('click', () => { if (direction.y !== -1) nextDirection = { x: 0, y: 1 }; });
-            dpadLeft.addEventListener('click', () => { if (direction.x !== 1) nextDirection = { x: -1, y: 0 }; });
-            dpadRight.addEventListener('click', () => { if (direction.x !== -1) nextDirection = { x: 1, y: 0 }; });
+            // Touch D-Pad Events
+            document.getElementById('dpad-up').addEventListener('click', () => queueDirection(0, -1));
+            document.getElementById('dpad-down').addEventListener('click', () => queueDirection(0, 1));
+            document.getElementById('dpad-left').addEventListener('click', () => queueDirection(-1, 0));
+            document.getElementById('dpad-right').addEventListener('click', () => queueDirection(1, 0));
+            document.getElementById('btn-touch-jump').addEventListener('click', triggerJump);
 
             // Button Click Handlers
             document.getElementById('btn-start').addEventListener('click', startNewGame);
@@ -1066,32 +1246,6 @@
                     soundBtn.classList.add('text-red-400');
                 }
             });
-
-            // Swipe Detection on Mobile
-            let touchStartX = 0;
-            let touchStartY = 0;
-
-            window.addEventListener('touchstart', (e) => {
-                touchStartX = e.changedTouches[0].screenX;
-                touchStartY = e.changedTouches[0].screenY;
-            }, { passive: true });
-
-            window.addEventListener('touchend', (e) => {
-                if (!isRunning || isPaused) return;
-                const touchEndX = e.changedTouches[0].screenX;
-                const touchEndY = e.changedTouches[0].screenY;
-
-                const dx = touchEndX - touchStartX;
-                const dy = touchEndY - touchStartY;
-
-                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 25) {
-                    if (dx > 0 && direction.x !== -1) nextDirection = { x: 1, y: 0 }; // Right
-                    else if (dx < 0 && direction.x !== 1) nextDirection = { x: -1, y: 0 }; // Left
-                } else if (Math.abs(dy) > 25) {
-                    if (dy > 0 && direction.y !== -1) nextDirection = { x: 0, y: 1 }; // Down
-                    else if (dy < 0 && direction.y !== 1) nextDirection = { x: 0, y: -1 }; // Up
-                }
-            }, { passive: true });
         }
     </script>
 </body>

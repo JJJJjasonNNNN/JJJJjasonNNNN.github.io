@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Snake: Multi-Floor Dimension</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap');
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #090d16;
+            color: #f8fafc;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.2);
+        }
+
+        .glow-portal-a { box-shadow: 0 0 20px rgba(59, 130, 246, 0.6); }
+        .glow-portal-b { box-shadow: 0 0 20px rgba(236, 72, 153, 0.6); }
+        .glow-portal-c { box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+        .glow-portal-d { box-shadow: 0 0 20px rgba(34, 197, 94, 0.6); }
+
+        .floor-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .floor-card.active-head {
+            border-color: #38bdf8;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+            transform: scale(1.02);
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100">
+
+    <!-- Top Navigation Header -->
+    <header class="glass-panel sticky top-0 z-40 px-4 py-3 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            
+            <!-- Title & Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid font-bold text-slate-950 text-xl fa-vr-cardboard"></i>
+                </div>
+                <div>
+                    <h1 class="font-orbitron font-extrabold text-xl md:text-2xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-fuchsia-400">
+                        PORTAL SNAKE
+                    </h1>
+                    <p class="text-xs text-slate-400 font-semibold tracking-widest uppercase">Multi-Dimensional Slither</p>
+                </div>
+            </div>
+
+            <!-- Game Stats Dashboard -->
+            <div class="flex items-center space-x-4 md:space-x-8 bg-slate-900/80 px-4 py-1.5 rounded-xl border border-slate-800">
+                <div class="text-center">
+                    <span class="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Score</span>
+                    <span id="score-display" class="font-orbitron text-xl font-extrabold text-cyan-400">0</span>
+                </div>
+                <div class="h-8 w-px bg-slate-800"></div>
+                <div class="text-center">
+                    <span class="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">High Score</span>
+                    <span id="highscore-display" class="font-orbitron text-xl font-extrabold text-amber-400">0</span>
+                </div>
+                <div class="h-8 w-px bg-slate-800"></div>
+                <div class="text-center">
+                    <span class="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Head Floor</span>
+                    <span id="head-floor-display" class="font-orbitron text-sm font-bold text-fuchsia-400 flex items-center justify-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-fuchsia-400 animate-ping"></span> Floor 1
+                    </span>
+                </div>
+            </div>
+
+            <!-- Actions & Settings -->
+            <div class="flex items-center space-x-2">
+                <button id="btn-sound" class="w-10 h-10 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition">
+                    <i class="fa-solid fa-volume-high text-lg" id="sound-icon"></i>
+                </button>
+                <button id="btn-pause" class="px-4 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 font-bold text-sm tracking-wide transition flex items-center gap-2">
+                    <i class="fa-solid fa-pause"></i>
+                    <span class="hidden sm:inline">Pause</span>
+                </button>
+                <button id="btn-restart" class="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 font-orbitron text-slate-950 font-extrabold text-sm tracking-wide transition shadow-md shadow-cyan-500/20 flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Reset</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Layout -->
+    <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 flex flex-col gap-6">
+
+        <!-- Info Bar & Legend -->
+        <div class="glass-panel p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs md:text-sm">
+            <div class="flex flex-wrap items-center gap-4">
+                <span class="font-bold uppercase tracking-wider text-slate-400">Portal Pair Nodes:</span>
+                <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-blue-500/30">
+                    <span class="w-3 h-3 rounded-full bg-blue-500 glow-portal-a"></span>
+                    <span class="font-bold text-blue-300">A</span>
+                    <span class="text-slate-500">→</span>
+                    <span class="text-slate-300">Floor 1 ↔ 2</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-pink-500/30">
+                    <span class="w-3 h-3 rounded-full bg-pink-500 glow-portal-b"></span>
+                    <span class="font-bold text-pink-300">B</span>
+                    <span class="text-slate-500">→</span>
+                    <span class="text-slate-300">Floor 2 ↔ 3</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-purple-500/30">
+                    <span class="w-3 h-3 rounded-full bg-purple-500 glow-portal-c"></span>
+                    <span class="font-bold text-purple-300">C</span>
+                    <span class="text-slate-500">→</span>
+                    <span class="text-slate-300">Floor 3 ↔ 4</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 glow-portal-d"></span>
+                    <span class="font-bold text-emerald-300">D</span>
+                    <span class="text-slate-500">→</span>
+                    <span class="text-slate-300">Floor 4 ↔ 1</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 font-semibold text-slate-300">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-gamepad text-cyan-400"></i> WASD / Arrows</span>
+                <span class="text-slate-600">|</span>
+                <span class="flex items-center gap-1"><i class="fa-solid fa-bolt text-amber-400"></i> Speed Powerups</span>
+            </div>
+        </div>
+
+        <!-- Multi-Floor Grid Displays Container -->
+        <div id="floors-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 flex-1">
+            
+            <!-- Floor 1 Card -->
+            <div id="floor-card-1" class="floor-card glass-panel rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden active-head">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-sm">FLOOR 1: MEADOW</h2>
+                    </div>
+                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Standard Speed</span>
+                </div>
+                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800/80 flex items-center justify-center">
+                    <canvas id="canvas-floor-1" class="w-full h-full block"></canvas>
+                </div>
+                <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
+                    <span>Active Snake Head</span>
+                    <span id="segments-floor-1" class="font-orbitron font-bold text-cyan-400">0 Segments</span>
+                </div>
+            </div>
+
+            <!-- Floor 2 Card -->
+            <div id="floor-card-2" class="floor-card glass-panel rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-cyan-400"></span>
+                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-sm">FLOOR 2: CYBER GRID</h2>
+                    </div>
+                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">+25% Velocity</span>
+                </div>
+                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800/80 flex items-center justify-center">
+                    <canvas id="canvas-floor-2" class="w-full h-full block"></canvas>
+                </div>
+                <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
+                    <span>Lasers Active</span>
+                    <span id="segments-floor-2" class="font-orbitron font-bold text-cyan-400">0 Segments</span>
+                </div>
+            </div>
+
+            <!-- Floor 3 Card -->
+            <div id="floor-card-3" class="floor-card glass-panel rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-orange-500"></span>
+                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-sm">FLOOR 3: MAGMA CORE</h2>
+                    </div>
+                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">2x Score Multiplier</span>
+                </div>
+                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800/80 flex items-center justify-center">
+                    <canvas id="canvas-floor-3" class="w-full h-full block"></canvas>
+                </div>
+                <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
+                    <span>Volcanic Heat</span>
+                    <span id="segments-floor-3" class="font-orbitron font-bold text-cyan-400">0 Segments</span>
+                </div>
+            </div>
+
+            <!-- Floor 4 Card -->
+            <div id="floor-card-4" class="floor-card glass-panel rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-purple-500"></span>
+                        <h2 class="font-orbitron font-extrabold text-slate-200 tracking-wide text-sm">FLOOR 4: COSMIC VOID</h2>
+                    </div>
+                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Wrap-Around Space</span>
+                </div>
+                <div class="relative aspect-square w-full bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800/80 flex items-center justify-center">
+                    <canvas id="canvas-floor-4" class="w-full h-full block"></canvas>
+                </div>
+                <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
+                    <span>Low Gravity</span>
+                    <span id="segments-floor-4" class="font-orbitron font-bold text-cyan-400">0 Segments</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Touch Controls for Mobile Devices -->
+        <div class="lg:hidden flex flex-col items-center justify-center mt-2 mb-4">
+            <div class="text-xs text-slate-400 font-bold mb-2 uppercase tracking-wider">Touch D-Pad Navigation</div>
+            <div class="grid grid-cols-3 gap-2 w-48 h-48">
+                <div></div>
+                <button id="dpad-up" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
+                <div></div>
+                <button id="dpad-left" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <div class="bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-center">
+                    <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></div>
+                </div>
+                <button id="dpad-right" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <div></div>
+                <button id="dpad-down" class="bg-slate-800 active:bg-cyan-500 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center justify-center text-xl font-bold shadow-lg">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Overlay Modals -->
+    <!-- Start / Game Over Modal -->
+    <div id="game-overlay" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 md:p-8 text-center border border-slate-700/60 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-12 -left-12 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-fuchsia-500/20 rounded-full blur-2xl"></div>
+
+            <div class="relative z-10">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-fuchsia-500 mx-auto flex items-center justify-center mb-4 shadow-xl shadow-cyan-500/30">
+                    <i id="overlay-icon" class="fa-solid fa-worm text-3xl text-slate-950"></i>
+                </div>
+
+                <h2 id="overlay-title" class="font-orbitron font-black text-2xl md:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-fuchsia-400 mb-2">
+                    DIMENSIONAL SNAKE
+                </h2>
+                <p id="overlay-subtitle" class="text-sm text-slate-300 mb-6 font-medium">
+                    Navigate through connected dimensional portals! Slither across multiple floors simultaneously to collect energy apples and reach ultimate high scores.
+                </p>
+
+                <div id="score-summary" class="hidden mb-6 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 grid grid-cols-2 gap-4">
+                    <div>
+                        <span class="block text-xs uppercase font-bold text-slate-400">Final Score</span>
+                        <span id="final-score" class="font-orbitron text-2xl font-black text-cyan-400">0</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs uppercase font-bold text-slate-400">Best Score</span>
+                        <span id="final-highscore" class="font-orbitron text-2xl font-black text-amber-400">0</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <button id="btn-start" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-fuchsia-500 hover:from-cyan-400 hover:to-fuchsia-400 font-orbitron font-extrabold text-slate-950 text-base tracking-wider transition shadow-lg shadow-cyan-500/25 transform hover:-translate-y-0.5">
+                        START DIMENSIONAL RUN
+                    </button>
+                    
+                    <div class="text-xs text-slate-400 pt-2 flex items-center justify-center gap-4">
+                        <span><i class="fa-solid fa-keyboard text-cyan-400"></i> Arrows / WASD</span>
+                        <span><i class="fa-solid fa-mobile-screen text-fuchsia-400"></i> Swipe / D-Pad</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pause Indicator Overlay -->
+    <div id="pause-overlay" class="hidden fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center">
+        <div class="glass-panel px-8 py-6 rounded-2xl border border-cyan-500/40 text-center">
+            <i class="fa-solid fa-pause text-4xl text-cyan-400 mb-2 animate-bounce"></i>
+            <h3 class="font-orbitron font-bold text-xl text-white">GAME PAUSED</h3>
+            <p class="text-xs text-slate-400 mt-1">Press SPACE or click Resume to continue</p>
+        </div>
+    </div>
+
+    <!-- Audio Synthesizer & Game Logic Script -->
+    <script>
+        // --- AUDIO SYNTHESIZER (Web Audio API) ---
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        this.ctx = new AudioContext();
+                    }
+                }
+            }
+
+            playTone(freq, type, duration, startVol = 0.1, endVol = 0) {
+                if (!this.enabled || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(startVol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(Math.max(endVol, 0.0001), this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+
+            playEat() {
+                this.init();
+                this.playTone(400, 'sine', 0.08, 0.2);
+                setTimeout(() => this.playTone(800, 'triangle', 0.1, 0.2), 60);
+            }
+
+            playPortalWarp() {
+                this.init();
+                if (!this.enabled || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.25);
+                } catch(e) {}
+            }
+
+            playGameOver() {
+                this.init();
+                this.playTone(300, 'sawtooth', 0.2, 0.2);
+                setTimeout(() => this.playTone(200, 'sawtooth', 0.2, 0.2), 150);
+                setTimeout(() => this.playTone(100, 'square', 0.4, 0.3), 300);
+            }
+
+            playClick() {
+                this.init();
+                this.playTone(600, 'sine', 0.04, 0.1);
+            }
+        }
+
+        const sfx = new SoundFX();
+
+        // --- GAME ENGINE & CONSTANTS ---
+        const GRID_SIZE = 16; // 16x16 grid per floor
+        
+        // Definition of the 4 Dimensional Floors
+        const FLOORS = [
+            { id: 0, name: 'Meadow', color: '#10b981', bg: '#022c22', gridColor: 'rgba(16, 185, 129, 0.1)', speedFactor: 1.0, scoreMult: 1 },
+            { id: 1, name: 'Cyber Grid', color: '#06b6d4', bg: '#083344', gridColor: 'rgba(6, 182, 212, 0.15)', speedFactor: 0.85, scoreMult: 1.5 },
+            { id: 2, name: 'Magma Core', color: '#f97316', bg: '#431407', gridColor: 'rgba(249, 115, 22, 0.15)', speedFactor: 0.95, scoreMult: 2.0 },
+            { id: 3, name: 'Cosmic Void', color: '#a855f7', bg: '#3b0764', gridColor: 'rgba(168, 85, 247, 0.15)', speedFactor: 1.0, scoreMult: 2.5, wrap: true }
+        ];
+
+        // Portal Links Configuration
+        // Connected Pairs:
+        // Portal A: Floor 0 <-> Floor 1
+        // Portal B: Floor 1 <-> Floor 2
+        // Portal C: Floor 2 <-> Floor 3
+        // Portal D: Floor 3 <-> Floor 0
+        const PORTAL_PAIRS = [
+            {
+                code: 'A',
+                color: '#3b82f6', // Blue
+                glow: 'rgba(59, 130, 246, 0.8)',
+                node1: { floor: 0, x: 12, y: 4, exitDir: { x: -1, y: 0 } },
+                node2: { floor: 1, x: 3, y: 11, exitDir: { x: 1, y: 0 } }
+            },
+            {
+                code: 'B',
+                color: '#ec4899', // Pink
+                glow: 'rgba(236, 72, 153, 0.8)',
+                node1: { floor: 1, x: 12, y: 12, exitDir: { x: 0, y: -1 } },
+                node2: { floor: 2, x: 3, y: 3, exitDir: { x: 0, y: 1 } }
+            },
+            {
+                code: 'C',
+                color: '#a855f7', // Purple
+                glow: 'rgba(168, 85, 247, 0.8)',
+                node1: { floor: 2, x: 12, y: 8, exitDir: { x: -1, y: 0 } },
+                node2: { floor: 3, x: 3, y: 8, exitDir: { x: 1, y: 0 } }
+            },
+            {
+                code: 'D',
+                color: '#22c55e', // Green
+                glow: 'rgba(34, 197, 94, 0.8)',
+                node1: { floor: 3, x: 8, y: 12, exitDir: { x: 0, y: -1 } },
+                node2: { floor: 0, x: 8, y: 3, exitDir: { x: 0, y: 1 } }
+            }
+        ];
+
+        // State Variables
+        let canvases = [];
+        let ctxs = [];
+        let snake = []; // Array of segment objects: [{ x, y, floor }, ...]
+        let direction = { x: 1, y: 0 };
+        let nextDirection = { x: 1, y: 0 };
+        let foods = []; // Array of food items: [{ floor, x, y, type, points }]
+        let particles = [];
+        let score = 0;
+        let highScore = localStorage.getItem('portal_snake_highscore') || 0;
+        let isRunning = false;
+        let isPaused = false;
+        let gameLoopTimeout = null;
+        let baseSpeed = 140; // ms per tick
+        let animationFrameId = null;
+
+        // Visual Effects State
+        let portalPulseAngle = 0;
+
+        // --- INITIALIZATION ---
+        window.addEventListener('load', () => {
+            initCanvases();
+            document.getElementById('highscore-display').innerText = highScore;
+
+            setupEventListeners();
+            requestAnimationFrame(renderLoop);
+        });
+
+        function initCanvases() {
+            canvases = [];
+            ctxs = [];
+            for (let i = 0; i < 4; i++) {
+                const canvas = document.getElementById(`canvas-floor-${i + 1}`);
+                // Ensure crisp canvas rendering
+                const size = 320;
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                canvases.push(canvas);
+                ctxs.push(ctx);
+            }
+        }
+
+        // Reset and start new game session
+        function startNewGame() {
+            sfx.init();
+            sfx.playClick();
+
+            // Initialize Snake on Floor 0 (Meadow)
+            snake = [
+                { x: 5, y: 8, floor: 0 },
+                { x: 4, y: 8, floor: 0 },
+                { x: 3, y: 8, floor: 0 }
+            ];
+
+            direction = { x: 1, y: 0 };
+            nextDirection = { x: 1, y: 0 };
+            score = 0;
+            particles = [];
+            updateScoreUI();
+
+            // Spawn Food across floors
+            spawnAllFoods();
+
+            isRunning = true;
+            isPaused = false;
+
+            document.getElementById('game-overlay').classList.add('hidden');
+            document.getElementById('pause-overlay').classList.add('hidden');
+
+            if (gameLoopTimeout) clearTimeout(gameLoopTimeout);
+            tick();
+        }
+
+        function spawnAllFoods() {
+            foods = [];
+            // Spawn 1 food per floor
+            for (let f = 0; f < 4; f++) {
+                spawnFoodForFloor(f);
+            }
+        }
+
+        function spawnFoodForFloor(floorIndex) {
+            let valid = false;
+            let fx, fy;
+
+            while (!valid) {
+                fx = Math.floor(Math.random() * GRID_SIZE);
+                fy = Math.floor(Math.random() * GRID_SIZE);
+
+                // Check collision with snake
+                const onSnake = snake.some(s => s.floor === floorIndex && s.x === fx && s.y === fy);
+                // Check collision with portals on this floor
+                const onPortal = isPortalAt(floorIndex, fx, fy);
+
+                if (!onSnake && !onPortal) {
+                    valid = true;
+                }
+            }
+
+            // Food type variants
+            const isSpecial = Math.random() < 0.25;
+            foods.push({
+                floor: floorIndex,
+                x: fx,
+                y: fy,
+                type: isSpecial ? 'special' : 'normal',
+                points: isSpecial ? 30 : 10
+            });
+        }
+
+        function isPortalAt(floor, x, y) {
+            for (const pair of PORTAL_PAIRS) {
+                if ((pair.node1.floor === floor && pair.node1.x === x && pair.node1.y === y) ||
+                    (pair.node2.floor === floor && pair.node2.x === x && pair.node2.y === y)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function getPortalNodeAt(floor, x, y) {
+            for (const pair of PORTAL_PAIRS) {
+                if (pair.node1.floor === floor && pair.node1.x === x && pair.node1.y === y) {
+                    return { pair, srcNode: pair.node1, targetNode: pair.node2 };
+                }
+                if (pair.node2.floor === floor && pair.node2.x === x && pair.node2.y === y) {
+                    return { pair, srcNode: pair.node2, targetNode: pair.node1 };
+                }
+            }
+            return null;
+        }
+
+        // --- GAME TICK & MOVEMENT ENGINE ---
+        function tick() {
+            if (!isRunning || isPaused) return;
+
+            direction = { ...nextDirection };
+            const head = snake[0];
+            let nextX = head.x + direction.x;
+            let nextY = head.y + direction.y;
+            let nextFloor = head.floor;
+
+            const currentFloorConfig = FLOORS[head.floor];
+
+            // 1. Check Floor Edge / Boundary Behavior
+            let hitWall = false;
+
+            if (currentFloorConfig.wrap) {
+                // Cosmic Void wraps around edges
+                if (nextX < 0) nextX = GRID_SIZE - 1;
+                if (nextX >= GRID_SIZE) nextX = 0;
+                if (nextY < 0) nextY = GRID_SIZE - 1;
+                if (nextY >= GRID_SIZE) nextY = 0;
+            } else {
+                if (nextX < 0 || nextX >= GRID_SIZE || nextY < 0 || nextY >= GRID_SIZE) {
+                    hitWall = true;
+                }
+            }
+
+            if (hitWall) {
+                gameOver("Collided with dimensional boundary!");
+                return;
+            }
+
+            // 2. Check Portal Interaction
+            const portalHit = getPortalNodeAt(nextFloor, nextX, nextY);
+
+            if (portalHit) {
+                const { pair, targetNode } = portalHit;
+                
+                // Teleport Snake Head to Target Floor & Target Node
+                nextFloor = targetNode.floor;
+                nextX = targetNode.x;
+                nextY = targetNode.y;
+
+                // Automatically update direction to portal's exit vector to prevent immediate back-collision
+                direction = { ...targetNode.exitDir };
+                nextDirection = { ...targetNode.exitDir };
+
+                sfx.playPortalWarp();
+
+                // Spawn Warp Particles
+                spawnWarpParticles(targetNode.floor, targetNode.x, targetNode.y, pair.color);
+            }
+
+            // 3. Self Collision Check
+            // Snake collides with itself if next position matches any segment ON THE SAME FLOOR
+            const selfCollision = snake.some((seg, idx) => {
+                // Ignore the very tail end segment as it will move forward this frame unless eating
+                if (idx === snake.length - 1) return false;
+                return seg.floor === nextFloor && seg.x === nextX && seg.y === nextY;
+            });
+
+            if (selfCollision) {
+                gameOver("Snake collided with its own segment!");
+                return;
+            }
+
+            // Create New Head Segment
+            const newHead = { x: nextX, y: nextY, floor: nextFloor };
+            snake.unshift(newHead);
+
+            // 4. Food Collision Check
+            const foodIndex = foods.findIndex(f => f.floor === nextFloor && f.x === nextX && f.y === nextY);
+
+            if (foodIndex !== -1) {
+                const eatenFood = foods[foodIndex];
+                const floorMult = FLOORS[nextFloor].scoreMult;
+                const earned = Math.round(eatenFood.points * floorMult);
+
+                score += earned;
+                updateScoreUI();
+                sfx.playEat();
+
+                // Particle Burst
+                spawnFoodParticles(nextFloor, nextX, nextY, eatenFood.type === 'special' ? '#f59e0b' : '#ef4444');
+
+                // Remove eaten food and spawn a replacement on that floor
+                foods.splice(foodIndex, 1);
+                spawnFoodFloorDelay(nextFloor);
+            } else {
+                // Remove Tail Segment if no food eaten
+                snake.pop();
+            }
+
+            // Highlight Floor Card containing the active head
+            updateHeadFloorUI(nextFloor);
+
+            // Calculate dynamic delay based on head floor speed setting
+            const speedFactor = FLOORS[nextFloor].speedFactor;
+            const currentSpeed = Math.max(70, baseSpeed * speedFactor - Math.floor(score / 50) * 2);
+
+            gameLoopTimeout = setTimeout(tick, currentSpeed);
+        }
+
+        function spawnFoodFloorDelay(floorIdx) {
+            setTimeout(() => {
+                if (isRunning) spawnFoodForFloor(floorIdx);
+            }, 500);
+        }
+
+        // --- PARTICLE EFFECTS ENGINE ---
+        function spawnWarpParticles(floor, gx, gy, color) {
+            const canvasSize = 320;
+            const cellSize = canvasSize / GRID_SIZE;
+            const px = (gx + 0.5) * cellSize;
+            const py = (gy + 0.5) * cellSize;
+
+            for (let i = 0; i < 18; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1.5 + Math.random() * 3.5;
+                particles.push({
+                    floor: floor,
+                    x: px,
+                    y: py,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    color: color,
+                    size: 2 + Math.random() * 4,
+                    life: 1.0,
+                    decay: 0.04 + Math.random() * 0.04
+                });
+            }
+        }
+
+        function spawnFoodParticles(floor, gx, gy, color) {
+            const canvasSize = 320;
+            const cellSize = canvasSize / GRID_SIZE;
+            const px = (gx + 0.5) * cellSize;
+            const py = (gy + 0.5) * cellSize;
+
+            for (let i = 0; i < 12; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1 + Math.random() * 2.5;
+                particles.push({
+                    floor: floor,
+                    x: px,
+                    y: py,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    color: color,
+                    size: 2 + Math.random() * 3,
+                    life: 1.0,
+                    decay: 0.05
+                });
+            }
+        }
+
+        function updateAndDrawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= p.decay;
+
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                const ctx = ctxs[p.floor];
+                if (ctx) {
+                    ctx.save();
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+        }
+
+        // --- RENDER ENGINE ---
+        function renderLoop() {
+            portalPulseAngle += 0.05;
+
+            // Render all 4 canvases
+            for (let f = 0; f < 4; f++) {
+                renderFloor(f);
+            }
+
+            // Update particle physics overlay
+            updateAndDrawParticles();
+
+            // Update Floor Segment Counters
+            updateSegmentCounters();
+
+            animationFrameId = requestAnimationFrame(renderLoop);
+        }
+
+        function renderFloor(floorIdx) {
+            const ctx = ctxs[floorIdx];
+            const config = FLOORS[floorIdx];
+            const size = 320;
+            const cellSize = size / GRID_SIZE;
+
+            // 1. Background Grid Fill
+            ctx.fillStyle = config.bg;
+            ctx.fillRect(0, 0, size, size);
+
+            // Draw Subtle Grid Pattern
+            ctx.strokeStyle = config.gridColor;
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * cellSize, 0);
+                ctx.lineTo(i * cellSize, size);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(0, i * cellSize);
+                ctx.lineTo(size, i * cellSize);
+                ctx.stroke();
+            }
+
+            // 2. Render Portals on this Floor
+            PORTAL_PAIRS.forEach(pair => {
+                if (pair.node1.floor === floorIdx) drawPortalNode(ctx, pair.node1, pair, cellSize);
+                if (pair.node2.floor === floorIdx) drawPortalNode(ctx, pair.node2, pair, cellSize);
+            });
+
+            // 3. Render Food on this Floor
+            foods.filter(f => f.floor === floorIdx).forEach(food => {
+                const cx = (food.x + 0.5) * cellSize;
+                const cy = (food.y + 0.5) * cellSize;
+                const radius = (cellSize / 2) * 0.7;
+
+                ctx.save();
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = food.type === 'special' ? '#f59e0b' : '#ef4444';
+
+                // Pulsing Food Animation
+                const pulse = Math.sin(portalPulseAngle * 2) * 2;
+
+                ctx.fillStyle = food.type === 'special' ? '#f59e0b' : '#ef4444';
+                ctx.beginPath();
+                ctx.arc(cx, cy, Math.max(3, radius + pulse), 0, Math.PI * 2);
+                ctx.fill();
+
+                // Core highlight
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(cx - radius * 0.3, cy - radius * 0.3, radius * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            });
+
+            // 4. Render Snake Segments on this Floor
+            // Collect all snake segments that belong to this floor
+            for (let i = snake.length - 1; i >= 0; i--) {
+                const seg = snake[i];
+                if (seg.floor !== floorIdx) continue;
+
+                const isHead = (i === 0);
+                const cx = seg.x * cellSize;
+                const cy = seg.y * cellSize;
+                const padding = 2;
+
+                ctx.save();
+
+                if (isHead) {
+                    // Snake Head
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#38bdf8';
+                    ctx.fillStyle = '#38bdf8';
+
+                    // Rounded Head Box
+                    ctx.beginPath();
+                    ctx.roundRect(cx + padding, cy + padding, cellSize - padding * 2, cellSize - padding * 2, 6);
+                    ctx.fill();
+
+                    // Eyes facing moving direction
+                    ctx.fillStyle = '#0f172a';
+                    const eyeSize = 3;
+                    let eyeX1 = cx + 5, eyeY1 = cy + 5, eyeX2 = cx + 11, eyeY2 = cy + 5;
+
+                    if (direction.x === 1) { // Right
+                        eyeX1 = cx + cellSize - 6; eyeY1 = cy + 5;
+                        eyeX2 = cx + cellSize - 6; eyeY2 = cy + cellSize - 7;
+                    } else if (direction.x === -1) { // Left
+                        eyeX1 = cx + 5; eyeY1 = cy + 5;
+                        eyeX2 = cx + 5; eyeY2 = cy + cellSize - 7;
+                    } else if (direction.y === 1) { // Down
+                        eyeX1 = cx + 5; eyeY1 = cy + cellSize - 6;
+                        eyeX2 = cx + cellSize - 7; eyeY2 = cy + cellSize - 6;
+                    }
+
+                    ctx.beginPath();
+                    ctx.arc(eyeX1, eyeY1, eyeSize, 0, Math.PI * 2);
+                    ctx.arc(eyeX2, eyeY2, eyeSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                } else {
+                    // Snake Body Segment
+                    const ratio = 1 - (i / snake.length);
+                    ctx.fillStyle = `hsl(${180 + ratio * 60}, 90%, ${45 + ratio * 15}%)`;
+
+                    ctx.beginPath();
+                    ctx.roundRect(cx + padding + 1, cy + padding + 1, cellSize - (padding + 1) * 2, cellSize - (padding + 1) * 2, 4);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        function drawPortalNode(ctx, node, pair, cellSize) {
+            const cx = (node.x + 0.5) * cellSize;
+            const cy = (node.y + 0.5) * cellSize;
+            const radius = (cellSize / 2) * 0.85;
+
+            ctx.save();
+
+            // Glowing Vortex Ring
+            const glowPulse = Math.sin(portalPulseAngle) * 4;
+            ctx.shadowBlur = 15 + glowPulse;
+            ctx.shadowColor = pair.color;
+
+            // Outer Portal Ring
+            ctx.strokeStyle = pair.color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Swirling Inner Core
+            ctx.fillStyle = pair.glow;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius * 0.55 + Math.sin(portalPulseAngle * 3) * 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Portal Label Badge (A, B, C, D)
+            ctx.shadowBlur = 0;
+            ctx.font = 'bold 11px Orbitron, sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(pair.code, cx, cy);
+
+            ctx.restore();
+        }
+
+        // --- UI UPDATES & EVENT HANDLERS ---
+        function updateScoreUI() {
+            document.getElementById('score-display').innerText = score;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('portal_snake_highscore', highScore);
+                document.getElementById('highscore-display').innerText = highScore;
+            }
+        }
+
+        function updateHeadFloorUI(floorIdx) {
+            // Update Top Header Floor Badge
+            const headFloorEl = document.getElementById('head-floor-display');
+            headFloorEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-fuchsia-400 animate-ping"></span> Floor ${floorIdx + 1}: ${FLOORS[floorIdx].name}`;
+
+            // Highlight active floor card
+            for (let f = 0; f < 4; f++) {
+                const card = document.getElementById(`floor-card-${f + 1}`);
+                if (f === floorIdx) {
+                    card.classList.add('active-head');
+                } else {
+                    card.classList.remove('active-head');
+                }
+            }
+        }
+
+        function updateSegmentCounters() {
+            const counts = [0, 0, 0, 0];
+            snake.forEach(seg => {
+                if (seg.floor >= 0 && seg.floor < 4) counts[seg.floor]++;
+            });
+
+            for (let f = 0; f < 4; f++) {
+                document.getElementById(`segments-floor-${f + 1}`).innerText = `${counts[f]} Segments`;
+            }
+        }
+
+        function gameOver(reason) {
+            isRunning = false;
+            sfx.playGameOver();
+
+            // Show Game Over Modal
+            const overlay = document.getElementById('game-overlay');
+            document.getElementById('overlay-title').innerText = "DIMENSIONAL CRASH";
+            document.getElementById('overlay-subtitle').innerText = reason;
+            document.getElementById('overlay-icon').className = "fa-solid fa-skull-crossbones text-3xl text-slate-950";
+
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-highscore').innerText = highScore;
+            document.getElementById('score-summary').classList.remove('hidden');
+
+            document.getElementById('btn-start').innerText = "RETRY DIMENSIONAL RUN";
+            overlay.classList.remove('hidden');
+        }
+
+        function togglePause() {
+            if (!isRunning) return;
+            isPaused = !isPaused;
+            const pauseOverlay = document.getElementById('pause-overlay');
+
+            if (isPaused) {
+                pauseOverlay.classList.remove('hidden');
+            } else {
+                pauseOverlay.classList.add('hidden');
+                tick();
+            }
+        }
+
+        function setupEventListeners() {
+            // Keyboard Movement Controls
+            window.addEventListener('keydown', (e) => {
+                if (!isRunning || isPaused) {
+                    if (e.code === 'Space') togglePause();
+                    return;
+                }
+
+                switch (e.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                    case 'W':
+                        if (direction.y !== 1) nextDirection = { x: 0, y: -1 };
+                        e.preventDefault();
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                    case 'S':
+                        if (direction.y !== -1) nextDirection = { x: 0, y: 1 };
+                        e.preventDefault();
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                    case 'A':
+                        if (direction.x !== 1) nextDirection = { x: -1, y: 0 };
+                        e.preventDefault();
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                    case 'D':
+                        if (direction.x !== -1) nextDirection = { x: 1, y: 0 };
+                        e.preventDefault();
+                        break;
+                    case ' ':
+                        togglePause();
+                        e.preventDefault();
+                        break;
+                }
+            });
+
+            // Touch Mobile D-Pad Events
+            const dpadUp = document.getElementById('dpad-up');
+            const dpadDown = document.getElementById('dpad-down');
+            const dpadLeft = document.getElementById('dpad-left');
+            const dpadRight = document.getElementById('dpad-right');
+
+            dpadUp.addEventListener('touchstart', (e) => { e.preventDefault(); if (direction.y !== 1) nextDirection = { x: 0, y: -1 }; });
+            dpadDown.addEventListener('touchstart', (e) => { e.preventDefault(); if (direction.y !== -1) nextDirection = { x: 0, y: 1 }; });
+            dpadLeft.addEventListener('touchstart', (e) => { e.preventDefault(); if (direction.x !== 1) nextDirection = { x: -1, y: 0 }; });
+            dpadRight.addEventListener('touchstart', (e) => { e.preventDefault(); if (direction.x !== -1) nextDirection = { x: 1, y: 0 }; });
+
+            dpadUp.addEventListener('click', () => { if (direction.y !== 1) nextDirection = { x: 0, y: -1 }; });
+            dpadDown.addEventListener('click', () => { if (direction.y !== -1) nextDirection = { x: 0, y: 1 }; });
+            dpadLeft.addEventListener('click', () => { if (direction.x !== 1) nextDirection = { x: -1, y: 0 }; });
+            dpadRight.addEventListener('click', () => { if (direction.x !== -1) nextDirection = { x: 1, y: 0 }; });
+
+            // Button Click Handlers
+            document.getElementById('btn-start').addEventListener('click', startNewGame);
+            document.getElementById('btn-restart').addEventListener('click', startNewGame);
+            document.getElementById('btn-pause').addEventListener('click', togglePause);
+
+            // Audio Mute Toggle
+            const soundBtn = document.getElementById('btn-sound');
+            const soundIcon = document.getElementById('sound-icon');
+            soundBtn.addEventListener('click', () => {
+                sfx.enabled = !sfx.enabled;
+                if (sfx.enabled) {
+                    soundIcon.className = "fa-solid fa-volume-high text-lg";
+                    soundBtn.classList.remove('text-red-400');
+                } else {
+                    soundIcon.className = "fa-solid fa-volume-xmark text-lg";
+                    soundBtn.classList.add('text-red-400');
+                }
+            });
+
+            // Swipe Detection on Mobile
+            let touchStartX = 0;
+            let touchStartY = 0;
+
+            window.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
+
+            window.addEventListener('touchend', (e) => {
+                if (!isRunning || isPaused) return;
+                const touchEndX = e.changedTouches[0].screenX;
+                const touchEndY = e.changedTouches[0].screenY;
+
+                const dx = touchEndX - touchStartX;
+                const dy = touchEndY - touchStartY;
+
+                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 25) {
+                    if (dx > 0 && direction.x !== -1) nextDirection = { x: 1, y: 0 }; // Right
+                    else if (dx < 0 && direction.x !== 1) nextDirection = { x: -1, y: 0 }; // Left
+                } else if (Math.abs(dy) > 25) {
+                    if (dy > 0 && direction.y !== -1) nextDirection = { x: 0, y: 1 }; // Down
+                    else if (dy < 0 && direction.y !== 1) nextDirection = { x: 0, y: -1 }; // Up
+                }
+            }, { passive: true });
+        }
+    </script>
+</body>
+</html>
